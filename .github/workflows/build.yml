@@ -1,0 +1,25 @@
+name: build
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-node-pnpm
+      - uses: ./.github/actions/install-dependencies
+
+      - uses: ./.github/actions/setup-docker
+
+      - uses: ./.github/actions/run-command
+        with:
+          name: build project
+          command: pnpm build

@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "target": "ES2018",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "outDir": "./build/core",
+    "sourceMap": true,
+    "skipLibCheck": true,
+    "strictPropertyInitialization": false,
+    "declaration": false,
+    "jsx": "preserve",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "baseUrl": ".",
+    "rootDir": ".",
+    "paths": {
+      "#root/*": ["./*"]
+    },
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "incremental": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true
+  },
+  "include": ["./core/**/*.ts", "./core/**/*.tsx", "./**/*.ts", "./**/*.tsx", "env.d.ts"],
+  "exclude": ["node_modules", "build", "vitest.config.ts", "vite.config.ts"]
+}

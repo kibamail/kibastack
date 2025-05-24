@@ -1,0 +1,39 @@
+@import "https://rsms.me/inter/inter.css";
+
+.w-composer-inter {
+  font-family: Inter, sans-serif;
+  font-feature-settings: "liga" 1, "calt" 1;
+}
+
+.w-composer-content {
+  /* font-size: 18px;
+  line-height: 1.5;
+  color: var(--content-secondary); */
+}
+
+@supports (font-variation-settings: normal) {
+  .w-composer-inter {
+    font-family: InterVariable, sans-serif;
+  }
+}
+
+.tiptap p.is-empty::before {
+  @apply text-[var(--content-tertiary-inverse)] float-left h-0 pointer-events-none;
+  content: attr(data-placeholder);
+}
+
+.tiptap ul {
+  list-style-type: decimal;
+  margin-left: 0.5em;
+}
+
+/* 
+.tiptap p,
+.tiptap h1,
+.tiptap h2,
+.tiptap h3,
+.tiptap h4,
+.tiptap h5,
+.tiptap h6 {
+  cursor: text !important;
+} */
