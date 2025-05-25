@@ -75,7 +75,7 @@ export class Hono extends BaseHono<{ Bindings: HttpBindings }> implements HonoIn
     this.onError((error, ctx) => {
       logger.error(error)
 
-      if (!appEnv.isProdOrStaging) {
+      if (!appEnv.isDev) {
         d({ error })
       }
 
