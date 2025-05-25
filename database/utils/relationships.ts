@@ -39,7 +39,8 @@ export function hasMany<
   T extends AnyMySqlTable,
   R extends AnyMySqlTable,
   RName extends string,
->(db: DrizzleClient, config: RelationshipConfig<T, R, RName>) {
+  D extends DrizzleClient,
+>(db: D, config: RelationshipConfig<T, R, RName>) {
   return async (
     $modifyQuery?: (
       // biome-ignore lint/suspicious/noExplicitAny: Using any here to match the MySQL driver types
@@ -117,6 +118,7 @@ export function hasOne<
   T extends AnyMySqlTable,
   R extends AnyMySqlTable,
   RName extends string,
+  D extends DrizzleClient,
 >(db: DrizzleClient, config: RelationshipConfig<T, R, RName>) {
   const fromTableName = getTableName(config.from)
   const toTableName = getTableName(config.to)
@@ -181,7 +183,8 @@ export function belongsTo<
   T extends AnyMySqlTable,
   R extends AnyMySqlTable,
   RName extends string,
->(db: DrizzleClient, config: BelongsToConfig<T, R, RName>) {
+  D extends DrizzleClient,
+>(db: D, config: BelongsToConfig<T, R, RName>) {
   const fromTableName = getTableName(config.from)
   const toTableName = getTableName(config.to)
   return async (

@@ -7,7 +7,7 @@ import {
   timestamp,
   unique,
   varchar,
-  json
+  json,
 } from 'drizzle-orm/mysql-core'
 import { v1 } from 'uuid'
 
@@ -52,12 +52,12 @@ export const binaryUuid = customType<{
 
 export const uuidToBin = (uuid: string) => sql`UUID_TO_BIN(${uuid}, 1)`
 
-const primaryKeyCuid = <TName extends string>(name: TName) =>
+export const primaryKeyCuid = <TName extends string>(name: TName) =>
   binaryUuid(name, { length: 16 })
 
-const id = primaryKeyCuid('id').primaryKey().$defaultFn(v1)
+export const id = primaryKeyCuid('id').primaryKey().$defaultFn(v1)
 
-export const users = mysqlTable('users', {
+export const usersColumns = {
   id,
   email: varchar('email', { length: 80 }).unique().notNull(),
   unconfirmedEmail: varchar('unconfirmedEmail', { length: 80 }),
@@ -77,19 +77,25 @@ export const users = mysqlTable('users', {
     'github',
     'google',
   ]),
+}
+export const users = mysqlTable('users', {
+  ...usersColumns,
 })
+
+export const oauth2AccountsColumns = {
+  id,
+  userId: primaryKeyCuid('userId')
+    .references(() => users.id)
+    .notNull(),
+  provider: mysqlEnum('provider', ['github', 'google']).notNull(),
+  providerId: varchar('providerId', { length: 80 }).unique().notNull(),
+  accessToken: text('accessToken').notNull(),
+}
 
 export const oauth2Accounts = mysqlTable(
   'oauth2Accounts',
   {
-    id,
-    userId: primaryKeyCuid('userId')
-      .references(() => users.id)
-      .notNull(),
-    provider: mysqlEnum('provider', ['github', 'google']).notNull(),
-    providerId: varchar('providerId', { length: 80 }).unique().notNull(),
-    accessToken: text('accessToken').notNull(),
-    // refreshToken: text('refreshToken'),
+    ...oauth2AccountsColumns,
   },
   (table) => ({
     Oauth2AccountProviderUserId: unique('Oauth2AccountProviderUserIdKey').on(
@@ -99,7 +105,16 @@ export const oauth2Accounts = mysqlTable(
   }),
 )
 
-export const passwordResets = mysqlTable('passwordResets', {
+export function oauth2AccountsConstraints(table: typeof oauth2Accounts) {
+  return {
+    Oauth2AccountProviderUserId: unique('Oauth2AccountProviderUserIdKey').on(
+      table.userId,
+      table.provider,
+    ),
+  }
+}
+
+export const passwordResetsColumns = {
   id,
   userId: primaryKeyCuid('userId')
     .references(() => users.id)
@@ -109,6 +124,10 @@ export const passwordResets = mysqlTable('passwordResets', {
   expiresAt: timestamp('expiresAt').notNull(),
   usedAt: timestamp('usedAt'),
   createdAt: timestamp('createdAt').defaultNow().notNull(),
+}
+
+export const passwordResets = mysqlTable('passwordResets', {
+  ...passwordResetsColumns,
 })
 
 /**
@@ -124,16 +143,19 @@ export const passwordResets = mysqlTable('passwordResets', {
  * Teams are the foundation of the permission system, as all resources
  * are associated with a team, and users access resources through team memberships.
  */
-export const teams = mysqlTable('teams', {
+export const teamsColumns = {
   id,
   name: varchar('name', { length: 100 }).notNull(),
-  // Owner of the team (typically the user who created it)
   userId: primaryKeyCuid('userId')
     .notNull()
     .references(() => users.id),
+}
+
+export const teams = mysqlTable('teams', {
+  ...teamsColumns,
 })
 
-export const teamMemberships = mysqlTable('teamMemberships', {
+export const teamMembershipsColumns = {
   id,
   userId: primaryKeyCuid('userId').references(() => users.id),
   email: varchar('email', { length: 50 }).notNull(),
@@ -143,11 +165,14 @@ export const teamMemberships = mysqlTable('teamMemberships', {
   role: mysqlEnum('role', ['ADMINISTRATOR', 'MANAGER', 'AUTHOR', 'GUEST']),
   status: mysqlEnum('status', ['PENDING', 'ACTIVE']),
   invitedAt: timestamp('invitedAt').defaultNow().notNull(),
-  // invite expiration
   expiresAt: timestamp('expiresAt').notNull(),
+}
+
+export const teamMemberships = mysqlTable('teamMemberships', {
+  ...teamMembershipsColumns,
 })
 
-export const accessTokens = mysqlTable('accessTokens', {
+export const accessTokensColumns = {
   id,
   userId: primaryKeyCuid('userId').references(() => users.id),
   teamId: primaryKeyCuid('teamId').references(() => teams.id),
@@ -158,6 +183,10 @@ export const accessTokens = mysqlTable('accessTokens', {
   createdAt: timestamp('createdAt').defaultNow().notNull(),
   lastUsedAt: timestamp('lastUsedAt').defaultNow().notNull(),
   expiresAt: timestamp('expiresAt').defaultNow().notNull(),
+}
+
+export const accessTokens = mysqlTable('accessTokens', {
+  ...accessTokensColumns,
 })
 
 /* --------------------------- */

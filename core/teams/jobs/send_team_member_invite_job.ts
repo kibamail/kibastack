@@ -2,7 +2,6 @@ import { appEnv } from '#root/core/app/env/app_env.js'
 
 import { TeamMembershipRepository } from '#root/core/teams/repositories/team_membership_repository.js'
 
-import { Mailer } from '#root/core/shared/mailers/mailer.js'
 import { BaseJob, type JobContext } from '#root/core/shared/queue/abstract_job.js'
 import { AVAILABLE_QUEUES } from '#root/core/shared/queue/config.js'
 import { SignedUrlManager } from '#root/core/shared/utils/links/signed_url_manager.js'
@@ -36,18 +35,7 @@ export class SendTeamMemberInviteJob extends BaseJob<SendTeamMemberInviteJobPayl
       {},
     )
 
-    await Mailer.from(appEnv.SMTP_MAIL_FROM)
-      .to(invite.email)
-      .subject("You've been invited to join a team on KibaStack.")
-      .content(
-        JSON.stringify({
-          transactionalEmailId: 'team_invite',
-          variables: {
-            token,
-          },
-        }),
-      )
-      .send()
+    // todo: send email using @kibamail/sdk
 
     return this.done()
   }

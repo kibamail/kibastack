@@ -2,7 +2,6 @@ import { appEnv } from '#root/core/app/env/app_env.js'
 
 import { UserRepository } from '#root/core/auth/users/repositories/user_repository.js'
 
-import { Mailer } from '#root/core/shared/mailers/mailer.js'
 import { BaseJob, type JobContext } from '#root/core/shared/queue/abstract_job.js'
 import { AVAILABLE_QUEUES } from '#root/core/shared/queue/config.js'
 
@@ -23,27 +22,13 @@ export class SendEmailVerificationJob extends BaseJob<SendEmailVerificationJobPa
   }
 
   async handle({ payload }: JobContext<SendEmailVerificationJobPayload>) {
-    const user = await container
-      .make(UserRepository)
-      .findById(payload.userId)
+    const user = await container.make(UserRepository).findById(payload.userId)
 
     if (!user) {
       return this.done()
     }
 
-    await Mailer.from(appEnv.SMTP_MAIL_FROM)
-      .to(user.email)
-      .subject('Verify your KibaStack email address')
-      .content(
-        JSON.stringify({
-          transactionalEmailId: 'email_verification',
-          variables: {
-            verificationCode: payload.verificationCode,
-            firstName: user.firstName || 'there',
-          },
-        }),
-      )
-      .send()
+    // todo: send email using @kibamail/sdk
 
     return this.done()
   }
