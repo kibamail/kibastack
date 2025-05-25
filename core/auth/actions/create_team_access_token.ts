@@ -1,6 +1,5 @@
-import { AccessTokenRepository } from '#root/core/auth/acess_tokens/repositories/access_token_repository.js'
-
 import { container } from '#root/core/utils/typi.js'
+import { AccessTokenRepository } from '#root/core/auth/access_tokens/repositories/access_token_repository.js'
 
 export class CreateTeamAccessTokenAction {
   constructor(private accessTokenRepository = container.make(AccessTokenRepository)) {}

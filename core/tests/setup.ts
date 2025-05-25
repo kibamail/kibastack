@@ -1,6 +1,5 @@
 import { Ignitor } from '#root/core/app/ignitor/ignitor.js'
-import { seedDevSendingSourcesCommand } from '#root/cli/commands/seed_dev_sending_sources_command.js'
 
 await new Ignitor().boot().start()
 
-await Promise.all([seedDevSendingSourcesCommand.handler?.()])
+// Removed kibamail-specific seeding commands - only essential auth stack setup remains

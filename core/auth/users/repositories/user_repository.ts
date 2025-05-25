@@ -16,7 +16,6 @@ import type {
   UserWithTeams,
 } from '#root/database/database_schema_types.js'
 import {
-  channelMemberships,
   oauth2Accounts,
   teamMemberships,
   teams,
@@ -68,20 +67,7 @@ export class UserRepository extends ScryptTokenRepository {
     })
   }
 
-  /**
-   * Relationship between users and their channel memberships.
-   * This relationship is used for the chat/collaboration features,
-   * allowing users to participate in different communication channels.
-   */
-  private hasManyChannelMemberships() {
-    return hasMany(this.database, {
-      from: users,
-      to: channelMemberships,
-      primaryKey: users.id,
-      foreignKey: channelMemberships.userId,
-      relationName: 'channels',
-    })
-  }
+
 
   /**
    * Relationship between users and their OAuth accounts.
@@ -263,13 +249,7 @@ export class UserRepository extends ScryptTokenRepository {
 
   async findByOauth2AccountProviderId(id: string) {}
 
-  async findByIdWithChannelMemberships(id: string) {
-    const [user] = await this.hasManyChannelMemberships()((query) =>
-      query.where(eq(users.id, id)),
-    )
 
-    return user
-  }
 
   /**
    * Finds a user by their ID and includes their owned teams.

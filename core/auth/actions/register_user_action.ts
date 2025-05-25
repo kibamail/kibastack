@@ -1,3 +1,4 @@
+import { SendEmailVerificationJob } from '#root/core/auth/jobs/send_email_verification_job.js'
 import { UserRepository } from '#root/core/auth/users/repositories/user_repository.js'
 import { DEFAULT_TEAM_NAME } from '#root/database/constants.js'
 
@@ -5,6 +6,7 @@ import type { InsertUser } from '#root/database/database_schema_types.js'
 
 import { E_VALIDATION_FAILED } from '#root/core/http/responses/errors.js'
 import { makeDatabase } from '#root/core/shared/container/index.js'
+import { Queue } from '#root/core/shared/queue/queue.js'
 import { TeamRepository } from '#root/core/teams/repositories/team_repository.js'
 
 import { container } from '#root/core/utils/typi.js'
@@ -35,6 +37,12 @@ export class RegisterUserAction {
         },
       )
 
+      // Queue email verification job for new user
+      await Queue.auth().add(SendEmailVerificationJob.id, {
+        userId: id,
+        verificationCode: emailVerificationCode,
+      })
+
       return {
         user: { id },
         teamId,
@@ -63,8 +71,12 @@ export class RegisterUserAction {
       emailVerificationCodeExpiresAt,
     })
 
-    // TODO: Queue a job to send OTP to user's email. Use bullMQ for queueing system.
-    // TODO: Queue a job to invite user to community chat (insert them into channels based on their interest)
+    // Queue email verification job for existing user
+    await Queue.auth().add(SendEmailVerificationJob.id, {
+      userId: userExists.id,
+      verificationCode: plainEmailVerificationCode,
+    })
+
     return {
       user: userExists,
       plainEmailVerificationCode,

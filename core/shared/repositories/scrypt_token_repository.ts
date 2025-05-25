@@ -2,7 +2,7 @@ import { type BinaryLike, randomBytes, scrypt } from 'node:crypto'
 import { promisify } from 'node:util'
 import { eq } from 'drizzle-orm'
 
-import { accessTokens } from '#root/database/schema.js'
+// Access tokens removed - not needed for basic auth stack
 
 import { BaseRepository } from '#root/core/shared/repositories/base_repository.js'
 import { container } from '#root/core/utils/typi.js'

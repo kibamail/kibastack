@@ -4,8 +4,6 @@ import { ConfirmEmailVerificationCodeSchema } from '../users/dto/confirm_email_v
 import { SetUserNameSchema } from '../users/dto/set_user_name_dto.js'
 import { SetUserPasswordSchema } from '../users/dto/set_user_password_dto.js'
 
-import { AudienceRepository } from '#root/core/audiences/repositories/audience_repository.js'
-
 import { TeamRepository } from '#root/core/teams/repositories/team_repository.js'
 
 import { RegisterUserAction } from '#root/core/auth/actions/register_user_action.js'
@@ -90,9 +88,9 @@ export class RegisterController extends BaseController {
   /**
    * Completes the user profile setup.
    *
-   * Updates the user's name and team name, creates an initial audience,
-   * and finalizes the registration process. This is typically the final
-   * step in the registration flow before the user reaches the application.
+   * Updates the user's name and team name, and finalizes the registration
+   * process. This is typically the final step in the registration flow
+   * before the user reaches the application.
    */
   async profile(ctx: HonoContext) {
     const user = ctx.get('user')
@@ -108,13 +106,7 @@ export class RegisterController extends BaseController {
         }),
       ])
 
-      await Promise.all([
-        container.make(AudienceRepository).audiences().create({
-          name: payload.teamName,
-          teamId: team.id,
-        }),
-        new Session().updateCurrentSessionTeamId(ctx, team.id),
-      ])
+      await new Session().updateCurrentSessionTeamId(ctx, team.id)
 
       return { team }
     })

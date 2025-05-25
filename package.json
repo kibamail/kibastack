@@ -1,5 +1,5 @@
 {
-  "name": "@kibamail/app",
+  "name": "@kibastack/auth",
   "version": "1.0.0",
   "type": "module",
   "scripts": {
@@ -76,13 +76,14 @@
   },
   "keywords": [
     "open source",
-    "email marketing",
-    "transactional email",
-    "email marketing platform"
+    "authentication",
+    "user management",
+    "team management",
+    "auth platform"
   ],
   "author": "Frantz Kati <hey@katifrantz.com>",
   "license": "ISC",
-  "description": "Kibamail: The developer friendly email platform for modern businesses. Kibamail: The Complete Email Platform For your Entire Business.",
+  "description": "KibaStack Auth: A clean authentication and team management platform for modern applications.",
   "devDependencies": {
     "@ant-design/icons": "4.7.0",
     "@biomejs/biome": "1.9.4",

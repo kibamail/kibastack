@@ -1,5 +1,6 @@
 import { appEnv } from '#root/core/app/env/app_env.js'
 
+import { SendPasswordResetJob } from '#root/core/auth/jobs/send_password_reset_job.js'
 import { RequestPasswordResetSchema } from '#root/core/auth/password_resets/dto/request_password_reset_dto.js'
 import { ResetPasswordSchema } from '#root/core/auth/password_resets/dto/reset_password_dto.js'
 import { PasswordResetRepository } from '#root/core/auth/password_resets/repositories/password_reset_repository.js'
@@ -9,6 +10,7 @@ import { E_VALIDATION_FAILED } from '#root/core/http/responses/errors.js'
 
 import { makeApp } from '#root/core/shared/container/index.js'
 import { BaseController } from '#root/core/shared/controllers/base_controller.js'
+import { Queue } from '#root/core/shared/queue/queue.js'
 import type { HonoContext } from '#root/core/shared/server/types.js'
 
 import { container } from '#root/core/utils/typi.js'
@@ -60,7 +62,12 @@ export class PasswordResetsController extends BaseController {
       return ctx.json({ Ok: true })
     }
 
-    // TODO: Queue email to send reset.token to user's email.
+    // Queue email to send reset token to user's email
+    await Queue.auth().add(SendPasswordResetJob.id, {
+      email: payload.email,
+      resetToken: reset.token,
+    })
+
     if (appEnv.isDev) {
       d({ reset })
     }

@@ -1,6 +1,5 @@
-import { appEnv } from '#root/core/app/env/app_env.js'
 import type { Next } from 'hono'
-import { deleteCookie, getCookie, setCookie, setSignedCookie } from 'hono/cookie'
+import { deleteCookie, getCookie } from 'hono/cookie'
 
 import type { HonoContext } from '#root/core/shared/server/types.js'
 

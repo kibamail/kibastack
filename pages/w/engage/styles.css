@@ -1,8 +1,0 @@
-@import "@kibamail/owly/styles/badge.css";
-@import "@kibamail/owly/styles/dialog.css";
-
-.w-search-broadcasts {
-  .kb-text-field-content {
-    border-radius: var(--radius-lg);
-  }
-}

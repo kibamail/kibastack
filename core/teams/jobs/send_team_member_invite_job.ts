@@ -38,10 +38,10 @@ export class SendTeamMemberInviteJob extends BaseJob<SendTeamMemberInviteJobPayl
 
     await Mailer.from(appEnv.SMTP_MAIL_FROM)
       .to(invite.email)
-      .subject("You've been invited to join a team on Kibamail.")
+      .subject("You've been invited to join a team on KibaStack.")
       .content(
         JSON.stringify({
-          transactionalEmailId: 'transactionalEmailId',
+          transactionalEmailId: 'team_invite',
           variables: {
             token,
           },
@@ -52,5 +52,7 @@ export class SendTeamMemberInviteJob extends BaseJob<SendTeamMemberInviteJobPayl
     return this.done()
   }
 
-  async failed() {}
+  async failed({ payload, logger }: JobContext<SendTeamMemberInviteJobPayload>) {
+    logger.error(`Failed to send team member invite for invite ID: ${payload.inviteId}`)
+  }
 }

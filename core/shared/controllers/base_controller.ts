@@ -1,8 +1,4 @@
-import { WEBSITES_DOMAIN, appEnv } from '#root/core/app/env/app_env.js'
-import { ChannelRepository } from '#root/core/chat/repositories/channel_repository.js'
-import { ProductRepository } from '#root/core/commerce/repositories/product_repository.js'
-import { WebsitePageRepository } from '#root/core/websites/repositories/website_page_repository.js'
-import { WebsiteRepository } from '#root/core/websites/repositories/website_repository.js'
+import { appEnv } from '#root/core/app/env/app_env.js'
 import type {
   ContentfulStatusCode,
   RedirectStatusCode,
@@ -15,17 +11,8 @@ import {
   safeParseAsync,
 } from 'valibot'
 
-import { BroadcastRepository } from '#root/core/broadcasts/repositories/broadcast_repository.js'
-
-import { TeamPolicy } from '#root/core/audiences/policies/team_policy.js'
-import { AudienceRepository } from '#root/core/audiences/repositories/audience_repository.js'
-import { ContactImportRepository } from '#root/core/audiences/repositories/contact_import_repository.js'
-import { ContactRepository } from '#root/core/audiences/repositories/contact_repository.js'
-import { TagRepository } from '#root/core/audiences/repositories/tag_repository.js'
-
 import { TeamMembershipRepository } from '#root/core/teams/repositories/team_membership_repository.js'
-
-import type { Website } from '#root/database/database_schema_types.js'
+import { TeamPolicy } from '#root/core/teams/policies/team_policy.js'
 
 import {
   E_OPERATION_FAILED,
@@ -38,23 +25,9 @@ import type { HonoContext } from '#root/core/shared/server/types.js'
 import { Session } from '#root/core/shared/sessions/sessions.js'
 import { SignedUrlManager } from '#root/core/shared/utils/links/signed_url_manager.js'
 
-import { AutomationRepository } from '#root/core/automations/repositories/automation_repository.js'
 import { type Constructor, container } from '#root/core/utils/typi.js'
-import { SenderIdentityRepository } from '#root/core/sending_domains/repositories/sender_identity_repository.js'
 
-type ControllerParams =
-  | 'importId'
-  | 'audienceId'
-  | 'contactId'
-  | 'tagId'
-  | 'broadcastId'
-  | 'membershipId'
-  | 'websiteId'
-  | 'websitePageId'
-  | 'productId'
-  | 'channelId'
-  | 'automationId'
-  | 'senderIdentityId'
+type ControllerParams = 'membershipId'
 
 interface ResponseConfiguration {
   type: 'redirect' | 'json'
@@ -302,38 +275,11 @@ export class BaseController extends FlashController {
     }
   }
 
-  protected ensureCanSendFromDomain(ctx: HonoContext, domain: string) {
-    const team = ctx.get('teamWithSendingDomains')
 
-    if (!team) throw E_OPERATION_FAILED('Could not resolve team from API key.')
-
-    if (team.sendingDomains.length === 0)
-      throw E_OPERATION_FAILED('Team does not have any sending domains.')
-
-    const sendingDomain = team.sendingDomains?.find(
-      (sendingDomain) => sendingDomain.name === domain,
-    )
-
-    if (!sendingDomain)
-      throw E_OPERATION_FAILED(`Not authorised to send from domain: ${domain} `)
-
-    return sendingDomain
-  }
 
   protected async ensureExists<T>(ctx: HonoContext, param: ControllerParams) {
     const repositories = {
-      tagId: TagRepository,
-      contactId: ContactRepository,
-      audienceId: AudienceRepository,
-      broadcastId: BroadcastRepository,
-      importId: ContactImportRepository,
-      websitePageId: WebsitePageRepository,
       membershipId: TeamMembershipRepository,
-      websiteId: WebsiteRepository,
-      productId: ProductRepository,
-      channelId: ChannelRepository,
-      automationId: AutomationRepository,
-      senderIdentityId: SenderIdentityRepository,
     } as const
 
     type GenericRepository = {
@@ -366,11 +312,5 @@ export class BaseController extends FlashController {
     }
 
     return entity as T
-  }
-
-  protected getWebsiteHomePage(website: Website) {
-    return `${website.slug}.${
-      website?.websiteDomainSslVerifiedAt ? website.websiteDomain : WEBSITES_DOMAIN
-    }/`
   }
 }

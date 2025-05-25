@@ -1,22 +1,18 @@
-import { count, eq } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
 
 import type { CreateTeamDto } from '#root/core/teams/dto/create_team_dto.js'
 
 import {
-  broadcastGroups,
-  creditGrantMandates,
-  creditPurchases,
-  sendingDomains,
   teamMemberships,
   teams,
   users,
 } from '#root/database/schema.js'
 import { hasMany } from '#root/database/utils/relationships.js'
 
-import { FREE_MONTHLY_CREDITS } from '#root/core/app/env/app_env.js'
+// Credits system removed - not needed for basic auth stack
 import { makeDatabase, makeRedis } from '#root/core/shared/container/index.js'
 import { BaseRepository } from '#root/core/shared/repositories/base_repository.js'
-import { DateTime } from 'luxon'
+// DateTime removed - not needed for auth stack
 import type { DrizzleClient } from '#root/database/client.js'
 
 /**
@@ -74,15 +70,7 @@ export class TeamRepository extends BaseRepository {
    * Each team can have multiple sending domains, allowing for different branding
    * and deliverability configurations for different types of emails.
    */
-  private hasManySendingDomains() {
-    return hasMany(this.database, {
-      from: teams,
-      to: sendingDomains,
-      primaryKey: teams.id,
-      foreignKey: sendingDomains.teamId,
-      relationName: 'sendingDomains',
-    })
-  }
+  // Sending domains removed - not needed for auth stack
 
   /**
    * Creates the first team for a user if one doesn't already exist.
@@ -141,30 +129,7 @@ export class TeamRepository extends BaseRepository {
         ...payload,
       })
 
-      // Set up a credit grant mandate for recurring free credits
-      // This will automatically grant free credits each month
-      await trx.insert(creditGrantMandates).values({
-        id: this.cuid(),
-        teamId: id,
-        status: 'active',
-        amount: FREE_MONTHLY_CREDITS,
-        createdAt: DateTime.now().toJSDate(),
-      })
-
-      // Add an initial credit purchase for immediate use
-      // This is a zero-cost purchase that provides the free starter credits
-      await trx.insert(creditPurchases).values({
-        id: this.cuid(),
-        teamId: id,
-        status: 'successful',
-        amountPaid: 0,
-        amount: FREE_MONTHLY_CREDITS,
-        currency: 'NGN',
-        paymentProvider: 'paystack',
-        createdAt: DateTime.now().toJSDate(),
-        // Set expiration to the start of the next month
-        expiresAt: DateTime.now().endOf('month').plus({ millisecond: 1 }).toJSDate(),
-      })
+      // Credits system removed - not needed for auth stack
     }
 
     if (this.isATransactionRepository) {
@@ -261,48 +226,5 @@ export class TeamRepository extends BaseRepository {
     return this.crud(teams)
   }
 
-  completedOnboarding(teamId: string) {
-    const self = this
-
-    return {
-      async engage() {
-        const [broadcastGroupsCount] = await self.database
-          .select({ count: count() })
-          .from(broadcastGroups)
-          .where(eq(broadcastGroups.teamId, teamId))
-
-        return broadcastGroupsCount.count > 0
-      },
-      async send() {
-        // TODO: Check if user has added sending domain.
-        return false
-      },
-    }
-  }
-
-  /**
-   * Finds a team by ID with all its sending domains, with caching.
-   *
-   * This method retrieves a team with all its sending domains, using Redis
-   * caching to improve performance for frequently accessed teams. It's used
-   * when rendering email sending forms and configuring email settings.
-   *
-   * The caching approach optimizes performance by avoiding repeated database
-   * queries for the same team, which is particularly important for sending
-   * domains as they're frequently accessed during email sending operations.
-   *
-   * @param teamId - The ID of the team to retrieve
-   * @returns The team with all sending domains, or undefined if not found
-   */
-  async findByIdWithDomains(teamId: string) {
-    return this.cache
-      .namespace('teams')
-      .get(`team_with_sending_domains:${teamId}`, async () => {
-        const [team] = await this.hasManySendingDomains()((query) =>
-          query.where(eq(teams.id, teamId)),
-        )
-
-        return team
-      })
-  }
+  // Onboarding and sending domain methods removed - not needed for auth stack
 }

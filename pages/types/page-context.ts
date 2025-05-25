@@ -1,7 +1,4 @@
 import type {
-  Audience,
-  SendingDomain,
-  Tag,
   Team,
   TeamMembership,
   TeamWithMemberships,
@@ -9,23 +6,11 @@ import type {
 } from '#root/database/database_schema_types.js'
 
 export interface DefaultPageProps<T = object> {
-  engage: {
-    onboarded: boolean
-  }
-  send: {
-    onboarded: boolean
-  }
-  sendingDomains: SendingDomain[]
   user: UserWithTeams
-  team: TeamWithMemberships & {
-    totalAvailableCredits: number
-    totalConsumedCredits: number
-  }
+  team: TeamWithMemberships
   pageProps: T
   userAgent: UAParser.IResult
   memberships: (TeamMembership & { team: Team })[]
-  audience: Audience
-  tags: Tag[]
   isMobile: boolean
   flash: string
 }

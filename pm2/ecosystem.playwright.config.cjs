@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: 'kibamail-app-playwright',
+      name: 'kibastack-app-playwright',
       script: './pm2/start.playwright.sh',
       interpreter: '/bin/bash',
       autorestart: true,
@@ -11,7 +11,7 @@ module.exports = {
       merge_logs: true,
     },
     {
-      name: 'kibamail-worker-playwright',
+      name: 'kibastack-worker-playwright',
       script: './pm2/start.playwright.worker.sh',
       interpreter: '/bin/bash',
       autorestart: true,

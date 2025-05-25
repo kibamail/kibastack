@@ -84,7 +84,7 @@ export class TeamMembershipRepository extends BaseRepository {
     return this.database.query.teams.findFirst({
       where: eq(teams.userId, userId),
       with: {
-        members: true,
+        // members: true, // Removed - causing circular reference
       },
     })
   }

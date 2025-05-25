@@ -1,8 +1,6 @@
 import { appEnv } from '#root/core/app/env/app_env.js'
 import type { Next } from 'hono'
 
-import { ContactRepository } from '#root/core/audiences/repositories/contact_repository.js'
-
 import { TeamRepository } from '#root/core/teams/repositories/team_repository.js'
 
 import { UserRepository } from '#root/core/auth/users/repositories/user_repository.js'
@@ -35,7 +33,6 @@ import { container } from '#root/core/utils/typi.js'
 export class UserSessionMiddleware {
   constructor(
     private teamRepository = container.make(TeamRepository),
-    private contactRepository = container.make(ContactRepository),
   ) {}
 
   /**
@@ -57,11 +54,8 @@ export class UserSessionMiddleware {
    * @returns The result of the next middleware
    */
   handle = async (ctx: HonoContext, next: Next) => {
-    // Retrieve both user and contact sessions in parallel for efficiency
-    const [userSession, contactSession] = await Promise.all([
-      new Session().getUser(ctx),
-      new Session().getUser(ctx, 'contact'),
-    ])
+    // Retrieve user session
+    const userSession = await new Session().getUser(ctx)
 
     let authenticatedUser: UserWithTeams | null = null
 
@@ -81,16 +75,8 @@ export class UserSessionMiddleware {
       }
     }
 
-    // If a contact session exists, load the contact information
-    // This is used for preference centers and other contact-facing features
-    if (contactSession?.userId) {
-      const contact = await this.contactRepository.findById(contactSession.userId)
-
-      if (contact) {
-        // Make contact data available to downstream middleware and controllers
-        ctx.set('contact', contact)
-      }
-    }
+    // Contact sessions are not supported in this auth-only stack
+    // This can be extended in applications that need contact-specific features
 
     if (!authenticatedUser) {
       return next()

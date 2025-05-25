@@ -1,6 +1,6 @@
 import { TeamRepository } from '#root/core/teams/repositories/team_repository.js'
 
-import { CreateTeamAccessTokenAction } from '#root/core/auth/actions/create_team_access_token.js'
+// Access token action removed - not needed for basic auth
 import { LoginUserSchema } from '#root/core/auth/users/dto/login_user_dto.js'
 import { UserRepository } from '#root/core/auth/users/repositories/user_repository.js'
 
@@ -70,13 +70,10 @@ export class AuthController extends BaseController {
    */
   async createApiKey(ctx: HonoContext) {
     // Generate a new API key for the current team
-    const { apiKey } = await container
-      .make(CreateTeamAccessTokenAction)
-      .handle(ctx.get('team').id)
+    // API key generation removed - not needed for basic auth
 
-    // Return the API key to the client
-    // Note: This is the only time the full API key will be visible
-    return ctx.json({ apiKey })
+    // Return placeholder response
+    return ctx.json({ message: 'API key generation not implemented in auth stack' })
   }
 
   /**

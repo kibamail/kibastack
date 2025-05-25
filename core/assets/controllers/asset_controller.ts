@@ -7,10 +7,7 @@ import type { HonoContext } from '#root/core/shared/server/types.js'
 export class AssetController extends BaseController {
   protected ASSETS_STORAGE_URL(assetPath: string) {
     return [
-      removeTrailingSlash(appEnv.STORJ_ASSETS_PUBLIC_URL),
-      'raw',
-      appEnv.STORJ_ACCESS_GRANT,
-      appEnv.FILE_UPLOADS_BUCKET,
+      removeTrailingSlash(appEnv.ASSETS_URL),
       removeTrailingSlash(this.removeAssetsPrefix(assetPath)),
     ].join('/')
   }
